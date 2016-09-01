@@ -1,0 +1,90 @@
+{
+	"name": "tsimporter",
+	"displayName": "TypeScript Importer",
+	"description": "Automatically searches for TypeScript definitions in workspace *.ts files and allows you to import them as a quick fix.",
+	"version": "1.0.0",
+	"publisher": "pmneo",
+	"engines": {
+		"vscode": "1.4.0"
+	},
+	"galleryBanner": {
+		"color": "#2d4794",
+		"theme": "dark"
+	},
+	"keywords": [
+		"typescript",
+		"imports",
+		"import",
+		"tsi",
+		"auto",
+		"suggest"
+	],
+	"categories": [
+		"Productivity"
+	],
+	"activationEvents": [
+		"onLanguage:typescript"
+	],
+	"main": "./out/TypeScriptImporter",
+	"contributes": {
+		"commands": [
+			{
+				"command": "tsimporter.reindex",
+				"title": "Reindex TypeScript Importer",
+				"category": "TypeScript Importer"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "TypeScript Importer configuration",
+			"properties": {
+				"tsimporter.filesToScan": {
+					"type": "string",
+					"default": "**/*.ts",
+					"description": "Glob for files to watch and scan, e.g ./src/** ./src/app/**/*.ts. Defaults to **/*.ts"
+				},
+				"tsimporter.disabled": {
+					"type": "boolean",
+					"default": false,
+					"description": "Extension is disabled when set to true"
+				},
+				"tsimporter.showNotifications": {
+					"type": "boolean",
+					"default": false,
+					"description": "Disables the extension"
+				},
+				"tsimporter.doubleQuotes": {
+					"type": "boolean",
+					"default": false,
+					"description": "Specifies wether to use double quotes"
+				},
+				"tsimporter.spaceBetweenBraces": {
+					"type": "boolean",
+					"default": true,
+					"description": "Insert spaces between the import braces. ( import {test} from 'test' vs. import { test } from 'test' )"
+				},
+				"tsimporter.removeFileExtensions": {
+					"type": "string",
+					"default": ".d.ts,.ts",
+					"description": "File Extensions to remove. default is '.d.ts,.ts'"
+				}
+			}
+		}
+	},
+	"icon": "icon.png",
+	"homepage": "https://github.com/pmneo/ts-importer",
+	"scripts": {
+		"vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+		"compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"vsce": "vsce"
+	},
+	"devDependencies": {
+		"typescript": "^1.8.10",
+		"vscode": "0.11.17",
+		"vsce": "1.8.1"
+	},
+	"dependencies": {
+
+	}
+}
