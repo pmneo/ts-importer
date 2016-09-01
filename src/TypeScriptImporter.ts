@@ -94,7 +94,8 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
     }
 
     public showNotificationMessage( message: string ): void {
-        vscode.window.showInformationMessage('[TypeScript Importer] ' + message );
+        if( this.showNotifications )
+            vscode.window.showInformationMessage('[TypeScript Importer] ' + message );
     }
 
     private status: string = "Initializing";

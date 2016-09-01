@@ -16,11 +16,10 @@
 		"imports",
 		"import",
 		"tsi",
-		"auto",
-		"suggest"
+		"auto"
 	],
 	"categories": [
-		"Productivity"
+		"Other"
 	],
 	"activationEvents": [
 		"onLanguage:typescript"
