@@ -2,7 +2,7 @@
 	"name": "tsimporter",
 	"displayName": "TypeScript Importer",
 	"description": "Automatically searches for TypeScript definitions in workspace *.ts files and allows you to import them as a quick fix.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"publisher": "pmneo",
 	"engines": {
 		"vscode": "1.4.0"

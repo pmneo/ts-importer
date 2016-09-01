@@ -42,11 +42,6 @@ export class ImportIndexer
                     this.paths[i] = p.join( "/" );
                 }
             }
-            else if( tsconfig.compilerOptions.sourceRoot )
-            {
-                let p: string[] = path.resolve( vscode.workspace.rootPath, tsconfig.compilerOptions.sourceRoot ).split( /[\/\\]/ );
-                this.paths = [ p.join( "/" ) ];
-            }
             else
                 this.paths = [];
         }
@@ -185,7 +180,7 @@ export class ImportIndexer
             }
         }
 
-        var typesRegEx = /(export\s+((?:(?:abstract\s+)?class)|(?:type)|(?:interface)|(?:let)|(?:var)|(?:const)))\s+([a-zA-z]\w*)/g;
+        var typesRegEx = /(export\s+((?:(?:abstract\s+)?class)|(?:type)|(?:interface)|(?:function)|(?:let)|(?:var)|(?:const)|(?:enum)))\s+([a-zA-z]\w*)/g;
         var typeMatches: string[];
         while ( ( typeMatches = typesRegEx.exec( data ) ) ) 
         {   

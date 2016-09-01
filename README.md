@@ -15,6 +15,8 @@ The current supported symbols are:
 >       export const [name] = ...
 >       export var [name] = ...
 >       export let [name] = ...
+>       export function [name] = ...
+>       export enum [name] = ...
 
 
 ----
@@ -42,14 +44,17 @@ The current supported symbols are:
 
 ## Changelog
 
+### 1.0.1
+- BUGFIX: respecting the tsimporter.doubleQuotes setting
+- Processing of `export function` and `export enum`
+
 ### 1.0.0
 - First Version
 
 
 ## ToDo
-- Support of export function [name] (...) { ... }
-- Follow up ///<reference path="..." /> declarations
-- Process node_modules/**/*.d.ts
-- Process typings/**/*.d.ts
+- Follow up `///<reference path="..." />` declarations
+- Process `node_modules/**/*.d.ts`
+- Process `typings/**/*.d.ts`
 
 

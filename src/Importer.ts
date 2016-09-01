@@ -12,11 +12,9 @@ export class Importer {
 
     constructor( private importer: TypeScriptImporter ) 
     {
-        let config = vscode.workspace.getConfiguration('tsimporter');
-
-        this.spacesBetweenBraces = config.get<boolean>('spaceBetweenBraces', true);
-        this.doubleQuotes = config.get<boolean>('doubleQuotes', false);
-        this.removeFileExtensions = config.get<string>('removeFileExtensions', '.d.ts,.ts').trim().split(/\s*,\s*/);
+        this.spacesBetweenBraces = importer.conf<boolean>('spaceBetweenBraces', true);
+        this.doubleQuotes = importer.conf<boolean>( 'doubleQuotes', false );
+        this.removeFileExtensions = importer.conf<string>('removeFileExtensions', '.d.ts,.ts').trim().split(/\s*,\s*/);
     }
 
     public importSymbol( document: vscode.TextDocument, symbol: Symbol): void 
@@ -86,7 +84,7 @@ export class Importer {
 
     public createImportStatement( definition: string, module: string, endline: boolean = false): string 
     {
-        let q = this.doubleQuotes ? '"' : '"';
+        let q = this.doubleQuotes ? '"' : "'";
         let NL = endline ? '\n' : '';
 
         let importStatement = 'import ' + definition + ' from ' + q + module + q + ";" + NL;

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import {ImportIndexer} from './ImportIndexer';
-import {ImportIndex, MatchMode, Symbol} from './ImportIndex';
+import { ImportIndex, Symbol, MatchMode } from './ImportIndex';
 import {Importer} from './Importer';
 
 export function activate( context: vscode.ExtensionContext ): void 
@@ -30,6 +30,8 @@ class SymbolCompletionItem extends vscode.CompletionItem
             this.kind = vscode.CompletionItemKind.Class;
         else if( m.type.indexOf( "interface" ) >= 0 )
             this.kind = vscode.CompletionItemKind.Interface;
+        else if( m.type.indexOf( "function" ) >= 0 )
+            this.kind = vscode.CompletionItemKind.Function;
         else
             this.kind = vscode.CompletionItemKind.Variable; 
 
@@ -242,7 +244,6 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         if ( message && ( match = test.exec( message ) ) ) 
         {
             let missing = match[1];
-            
             return this.index.getSymbols( missing, false, MatchMode.EXACT );
         }
         else

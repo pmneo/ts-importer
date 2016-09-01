@@ -17,6 +17,9 @@ export enum MatchMode
 
 function matches( value: string, test: string, ignoreCase: boolean, mode: MatchMode ): boolean
 {
+    value = value || '';
+    test = test || '';
+    
     if( ignoreCase )
     {
         value = value.toLocaleLowerCase();
