@@ -20,7 +20,7 @@ export function deactivate() {
 
 class SymbolCompletionItem extends vscode.CompletionItem
 {
-    constructor( private m: Symbol )
+    constructor( doc: vscode.TextDocument, private m: Symbol )
     {
         super( m.name );
 
@@ -36,6 +36,12 @@ class SymbolCompletionItem extends vscode.CompletionItem
             this.kind = vscode.CompletionItemKind.Variable; 
 
         this.detail = m.module || m.path;
+
+        this.command = {
+            title: "import",
+            command: 'tsimporter.importSymbol',
+            arguments: [ doc, m ]
+        }
     }
 
 }
@@ -54,7 +60,9 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
     private statusBar: vscode.StatusBarItem;
 
     public indexer: ImportIndexer;
-    public index: ImportIndex;
+
+    public codeCompletionIndexer: ImportIndexer;
+
     public importer: Importer;
 
     constructor( private context: vscode.ExtensionContext )
@@ -69,8 +77,10 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
 
     public start(): void
     {
-        this.index = new ImportIndex( );
         this.indexer = new ImportIndexer( this );
+        this.indexer.attachFileWatcher();
+        
+        this.codeCompletionIndexer = new ImportIndexer( this );
         this.importer = new Importer( this );
 
 
@@ -78,7 +88,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         let completionItem = vscode.languages.registerCompletionItemProvider('typescript', this)
 
         let reindexCommand = vscode.commands.registerCommand( 'tsimporter.reindex', ( ) => {
-            this.index.resetIndex();
+            this.indexer.index.resetIndex();
             this.indexer.scanAll( true );
         });
 
@@ -151,12 +161,19 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         }
         else if( range )
         {
+            this.codeCompletionIndexer.index.resetIndex();
+            this.codeCompletionIndexer.processFile( document.getText(), document.uri, false );
+
             var definitions: vscode.CompletionItem[] = [];
 
-            this.index.getSymbols( word, true, MatchMode.ANY ).forEach( m => {
-                var ci: vscode.CompletionItem = new SymbolCompletionItem( m );
-
-                definitions.push( ci );
+    
+            this.indexer.index.getSymbols( word, true, MatchMode.ANY ).forEach( m => {
+                
+                if( this.codeCompletionIndexer.index.getSymbols( m.name, false, MatchMode.EXACT ).length == 0 )
+                {
+                    var ci: vscode.CompletionItem = new SymbolCompletionItem( document, m );
+                    definitions.push( ci );
+                }
             } );
 
             return definitions;
@@ -167,7 +184,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
     {
         var modules: vscode.CompletionItem[] = [];
 
-        this.index.getModules( searchText, true, MatchMode.ANY ).forEach( m => {
+        this.indexer.index.getModules( searchText, true, MatchMode.ANY ).forEach( m => {
             var ci: vscode.CompletionItem = new vscode.CompletionItem( m );
             
             ci.kind = vscode.CompletionItemKind.File;
@@ -244,7 +261,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         if ( message && ( match = test.exec( message ) ) ) 
         {
             let missing = match[1];
-            return this.index.getSymbols( missing, false, MatchMode.EXACT );
+            return this.indexer.index.getSymbols( missing, false, MatchMode.EXACT );
         }
         else
             return [];

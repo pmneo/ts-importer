@@ -2,20 +2,39 @@ import { TypeScriptImporter } from './TypeScriptImporter';
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { ImportIndex } from './ImportIndex';
 
 const BATCH_SIZE = 50;
+
+function toGlob( p: string[] ): string
+{
+    return p.length == 1 ? p[0] : ( "{"+p.join(",")+"}");
+}
+
+function toSA( value: any ): string[]
+{
+    if( value === void 0 )
+        return [];
+    else if( typeof value === 'string' )
+        return [ value ];
+    else
+        return value;
+}
 
 export class ImportIndexer
 {
     private scanStarted: Date;
     private scanEnded: Date;
     private paths: string[];
-    private filesToScan: string;
-    
+    private filesToScan: string[];
+    private filesToExclude: string[];
+    public index: ImportIndex;
 
     constructor( protected importer: TypeScriptImporter )
     {
-        this.filesToScan = this.importer.conf<string>('filesToScan');
+        this.index = new ImportIndex();
+        this.filesToScan = toSA( this.importer.conf<string[]>('filesToScan') );
+        this.filesToExclude = toSA( this.importer.conf<string[]>('filesToExclude') );
 
         var tsconfig: any;
 
@@ -48,23 +67,32 @@ export class ImportIndexer
         else
             this.paths = [];
 
-        this.attachFileWatcher();
+        //this.attachFileWatcher();
     }
 
-    private attachFileWatcher(): void
+    public attachFileWatcher(): void
     {
-        let watcher = vscode.workspace.createFileSystemWatcher( this.filesToScan );
+        let watcher = vscode.workspace.createFileSystemWatcher( toGlob( this.filesToScan ) );
 
-        var batch: vscode.Uri[] = [];
+        var batch: string[] = [];
         var batchTimeout: any = undefined;
 
         var batchHandler = () => {
             batchTimeout = undefined;
-            this.processWorkspaceFiles( batch.splice( 0, batch.length ), false, true );
+            //this.processWorkspaceFiles( batch.splice( 0, batch.length ), false, true );
+            
+            vscode.workspace
+                .findFiles( toGlob( this.filesToScan ), toGlob( [ '**/node_modules/**' ].concat( this.filesToExclude ) ), 99999)
+                .then((files) => {
+                    var b = batch.splice( 0, batch.length );
+
+                    if( b.length )
+                        this.processWorkspaceFiles( files.filter( f => b.indexOf( f.fsPath ) >= 0 ), false, true );
+            } );
         }
 
         var addBatch = ( file: vscode.Uri ) => {
-            batch.push( file );
+            batch.push( file.fsPath );
 
             if( batchTimeout )
             {
@@ -91,21 +119,20 @@ export class ImportIndexer
     public scanAll( showNotifications: boolean ): void 
     {
         this.scanStarted = new Date();
-            
         vscode.workspace
-            .findFiles(this.filesToScan, '**/node_modules/**', 99999)
+            .findFiles( toGlob( this.filesToScan ), toGlob( [ '**/node_modules/**' ].concat( this.filesToExclude ) ), 99999)
             .then((files) => this.processWorkspaceFiles( files, showNotifications, false ) );
     }
 
     private fileDeleted( file: vscode.Uri ): void
     {
-        this.importer.index.deleteByPath( file.fsPath );
+        this.index.deleteByPath( file.fsPath );
         this.printSummary();
     }
 
     private printSummary(): void
     {
-        this.importer.setStatusBar( "Symbols: " + this.importer.index.symbolCount );
+        this.importer.setStatusBar( "Symbols: " + this.index.symbolCount );
     }
 
     private processWorkspaceFiles( files: vscode.Uri[], showNotifications: boolean, deleteByFile: boolean ): void 
@@ -115,6 +142,8 @@ export class ImportIndexer
                 f.fsPath.indexOf('node_modules') === -1 &&
                 f.fsPath.indexOf('jspm_packages') === -1;
         });
+
+        console.log( "processWorkspaceFiles", files, showNotifications, deleteByFile );
 
         var fi = 0; 
 
@@ -156,10 +185,10 @@ export class ImportIndexer
     }
 
 
-    private processFile( data: string, file: vscode.Uri, deleteByFile: boolean ): void 
+    public processFile( data: string, file: vscode.Uri, deleteByFile: boolean ): void 
     {
         if( deleteByFile )
-            this.importer.index.deleteByPath( file.fsPath );
+            this.index.deleteByPath( file.fsPath );
 
         var fsPath = file.fsPath.replace( /[\/\\]/g, "/" );
 
@@ -186,7 +215,7 @@ export class ImportIndexer
         {   
             let symbolType: string = typeMatches[2];
             let symbolName: string = typeMatches[3];
-            this.importer.index.addSymbol( symbolName, module, path, symbolType );
+            this.index.addSymbol( symbolName, module, path, symbolType );
         }
 
         var importRegEx = /\bimport\s+(?:{?\s*(.+?)\s*}?\s+from\s+)?[\'"]([^"\']+)["\']/g;
@@ -202,7 +231,7 @@ export class ImportIndexer
                 for( var s = 0; s < symbols.length; s++ )
                 {
                     let symbolName: string = symbols[s];
-                    this.importer.index.addSymbol( symbolName, importModule, undefined, undefined );
+                    this.index.addSymbol( symbolName, importModule, undefined, undefined );
                 }
             }
         }

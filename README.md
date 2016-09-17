@@ -21,13 +21,15 @@ The current supported symbols are:
 
 ----
 
-<img src="http://g.recordit.co/KukcjCupXC.gif">
+<img src="http://g.recordit.co/QHByAo9Km7.gif">
 
 ----
 
 ## Configuration
 
-> tsimporter.filesToScan - Glob for which files in your workspace to scan, defaults to '**/*.ts'
+> tsimporter.filesToScan - Glob for which files in your workspace to scan, defaults to ['**/*.ts']
+
+> tsimporter.filesToExclude - Glob for files to exclude from watch and scan, e.g ./out/**. Defaults to nothing
 
 > tsimporter.showNotifications - Show status notifications, default is false
 
@@ -43,6 +45,12 @@ The current supported symbols are:
 
 
 ## Changelog
+
+### 1.1.0
+- BUGFIX: support of vscode 1.5.2
+- Changed filesToScan to an array and added filesToExclude glob patterns
+- Automatically add the import for the selected code completion item
+- Filtering known symbols from code completion items 
 
 ### 1.0.1
 - BUGFIX: respecting the tsimporter.doubleQuotes setting
