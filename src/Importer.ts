@@ -21,7 +21,7 @@ export class Importer {
     {
         let module = this.resolveModule( document, symbol );
 
-        var importRegExp = /\bimport\s+(?:{?\s*(.+?)\s*}?\s+from\s+)?[\'"]([^"\']+)["\']\s*;?/g;
+        var importRegExp = /\bimport\s+(?:({?)\s*(.+?)\s*}?\s+from\s+)?[\'"]([^"\']+)["\']\s*;?/g;
 
         let currentDoc = document.getText();
 
@@ -35,18 +35,25 @@ export class Importer {
         {
             lastImport = document.positionAt( currentDoc.indexOf( matches[0] ) );
 
-            if( matches[2] == module )
+            var isDefault = matches[1] != "{";
+            
+            if( matches[3] == module && symbol.isDefault == isDefault )
             {
-                let symbols = matches[1].split( /\s*,\s*/g );
+                let symbols = matches[2].split( /\s*,\s*/g );
 
-                if( symbols.indexOf( symbol.name ) < 0 )
-                    symbols.push( symbol.name );
+                let symbolName = symbol.asDefinition ? symbol.asDefinition : symbol.name; 
+
+                if( symbols.indexOf( symbolName ) < 0 )
+                    symbols.push( symbolName );
                 
+                if( ( symbol.isDefault || isDefault ) && symbols.length > 1 )
+                    continue;
+
                 edit = new vscode.WorkspaceEdit();
                 edit.replace( 
                     document.uri, 
                     new vscode.Range(lastImport.line, lastImport.character, lastImport.line, lastImport.character + matches[0].length), 
-                    this.createImportStatement( this.createImportDefinition( symbols.join(', ') ), module, false ) 
+                    this.createImportStatement( this.createImportDefinition( symbols.join(', '), isDefault ), module, false ) 
                 );
                 break;
             }
@@ -58,26 +65,26 @@ export class Importer {
             edit.insert( 
                 document.uri, 
                 new vscode.Position( lastImport ? lastImport.line + 1 : 0, 0), 
-                this.createImportStatement( this.createImportDefinition( symbol.name ), module, true ) 
+                this.createImportStatement( this.createImportDefinition( symbol.asDefinition ? symbol.asDefinition : symbol.name, symbol.isDefault ), module, true ) 
             );
         }
 
         vscode.workspace.applyEdit(edit);
     }
 
-    public createImportDefinition( definitions: string ): string
+    public createImportDefinition( definitions: string, skipBrakets: boolean = false ): string
     {
-        var definition = '{';
+        var definition = skipBrakets ? '' : '{';
 
-        if (this.spacesBetweenBraces)
+        if (this.spacesBetweenBraces && skipBrakets == false)
             definition += ' ';
 
         definition += definitions;
 
-        if (this.spacesBetweenBraces)
+        if (this.spacesBetweenBraces && skipBrakets == false)
             definition += ' ';
 
-        definition += '}';
+        definition += skipBrakets ? '' : '}';
 
         return definition;
     }

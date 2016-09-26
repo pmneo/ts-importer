@@ -46,6 +46,13 @@ The current supported symbols are:
 
 ## Changelog
 
+### 1.2.1
+- Updated to vscode 1.5.3
+
+### 1.2.0
+- Add support of `* as Symbol` syntax
+- Add support of `export default` syntax
+
 ### 1.1.0
 - BUGFIX: support of vscode 1.5.2
 - Changed filesToScan to an array and added filesToExclude glob patterns

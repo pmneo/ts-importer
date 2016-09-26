@@ -1,11 +1,11 @@
 {
 	"name": "tsimporter",
 	"displayName": "TypeScript Importer",
-	"description": "Automatically searches for TypeScript definitions in workspace *.ts files and allows you to import them as a quick fix.",
-	"version": "1.1.0",
+	"description": "Automatically searches for TypeScript definitions in workspace *.ts files and allows you to import them as a code completion items.",
+	"version": "1.2.1",
 	"publisher": "pmneo",
 	"engines": {
-		"vscode": "^1.5.2"
+		"vscode": "^1.5.3"
 	},
 	"galleryBanner": {
 		"color": "#2d4794",
@@ -13,10 +13,10 @@
 	},
 	"keywords": [
 		"typescript",
-		"imports",
 		"import",
 		"tsi",
-		"auto"
+		"auto",
+		"require"
 	],
 	"categories": [
 		"Other"
@@ -85,8 +85,8 @@
 	},
 	"devDependencies": {
 		"typescript": "^1.8.10",
-		"vscode": "0.11.18",
-		"vsce": "1.11.0"
+		"vscode": "^0.11.18",
+		"vsce": "1.14.0"
 	},
 	"dependencies": {
 

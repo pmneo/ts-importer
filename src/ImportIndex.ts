@@ -7,7 +7,9 @@ export interface Symbol {
     name: string,
     module: string,
     path: string,
-    type: string
+    type: string,
+    isDefault: boolean, 
+    asDefinition: string
 }
 
 export enum MatchMode
@@ -151,7 +153,7 @@ export class ImportIndex {
             delete this.knownSymbols[ obj.name ];
     }
 
-    public addSymbol( name: string, module: string, path: string, type: string ): Symbol 
+    public addSymbol( name: string, module: string, path: string, type: string, isDefault: boolean, asDefinition: string ): Symbol 
     {
         name = name.trim();
 
@@ -162,7 +164,9 @@ export class ImportIndex {
             name,
             module,
             path,
-            type
+            type,
+            isDefault,
+            asDefinition
         }
 
         var updated = [ obj ];
@@ -179,6 +183,8 @@ export class ImportIndex {
             {
                 obj.path = obj.path || c.path;
                 obj.type = obj.type || c.type;
+                obj.isDefault = obj.isDefault || c.isDefault;
+                obj.asDefinition = obj.asDefinition || c.asDefinition;
                 continue;
             }
 

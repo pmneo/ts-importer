@@ -135,10 +135,6 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         var line = document.lineAt( position.line );
         var lineText = line.text;
 
-        var range = document.getWordRangeAtPosition( position );
-        
-        var word = document.getText( range );
-
         if( line && line.text.indexOf( "import" ) >= 0 && line.text.indexOf( "from" ) >= 0 )
         {
             var delims = ["'", '"'];
@@ -159,15 +155,14 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
                 return [];
             }
         }
-        else if( range )
+        else// if( range )
         {
             this.codeCompletionIndexer.index.resetIndex();
             this.codeCompletionIndexer.processFile( document.getText(), document.uri, false );
 
             var definitions: vscode.CompletionItem[] = [];
 
-    
-            this.indexer.index.getSymbols( word, true, MatchMode.ANY ).forEach( m => {
+            this.indexer.index.getSymbols( "", true, MatchMode.ANY ).forEach( m => {
                 
                 if( this.codeCompletionIndexer.index.getSymbols( m.name, false, MatchMode.EXACT ).length == 0 )
                 {

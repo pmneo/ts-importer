@@ -209,29 +209,41 @@ export class ImportIndexer
             }
         }
 
-        var typesRegEx = /(export\s+((?:(?:abstract\s+)?class)|(?:type)|(?:interface)|(?:function)|(?:let)|(?:var)|(?:const)|(?:enum)))\s+([a-zA-z]\w*)/g;
+        var typesRegEx = /(export\s+(default\s+)?((?:(?:abstract\s+)?class)|(?:type)|(?:interface)|(?:function)|(?:let)|(?:var)|(?:const)|(?:enum)))\s+([a-zA-z]\w*)/g;
         var typeMatches: string[];
         while ( ( typeMatches = typesRegEx.exec( data ) ) ) 
         {   
-            let symbolType: string = typeMatches[2];
-            let symbolName: string = typeMatches[3];
-            this.index.addSymbol( symbolName, module, path, symbolType );
+            let isDefault: string = typeMatches[2];
+            let symbolType: string = typeMatches[3];
+            let symbolName: string = typeMatches[4];
+
+            this.index.addSymbol( symbolName, module, path, symbolType, !!isDefault, undefined );
         }
 
-        var importRegEx = /\bimport\s+(?:{?\s*(.+?)\s*}?\s+from\s+)?[\'"]([^"\']+)["\']/g;
+        var importRegEx = /\bimport\s+(?:({?)\s*(.+?)\s*}?\s+from\s+)?[\'"]([^"\']+)["\']/g;
         var imports: string[];
         while( imports = importRegEx.exec( data ) ) 
         {
-            let importModule = imports[2];
+            let importModule = imports[3];
 
             if( importModule.indexOf( './' ) < 0 && importModule.indexOf( '!' ) < 0)
             {
-                let symbols = imports[1].split( /\s*,\s*/g );
+                let symbols = imports[2].split( /\s*,\s*/g );
 
                 for( var s = 0; s < symbols.length; s++ )
                 {
                     let symbolName: string = symbols[s];
-                    this.index.addSymbol( symbolName, importModule, undefined, undefined );
+
+                    let asStmtMatch = /\*\s+as\s+(.*)/.exec( symbolName );
+                    let asStmt: string = undefined;
+                    
+                    if( asStmtMatch )
+                    {
+                        asStmt = symbolName;
+                        symbolName = asStmtMatch[1];
+                    }
+
+                    this.index.addSymbol( symbolName, importModule, undefined, undefined, imports[1] != "{", asStmt );
                 }
             }
         }
