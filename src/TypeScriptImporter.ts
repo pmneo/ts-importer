@@ -87,9 +87,17 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         let codeActionFixer = vscode.languages.registerCodeActionsProvider('typescript', this)
         let completionItem = vscode.languages.registerCompletionItemProvider('typescript', this)
 
+        let codeActionFixerReact = vscode.languages.registerCodeActionsProvider('typescriptreact', this)
+        let completionItemReact = vscode.languages.registerCompletionItemProvider('typescriptreact', this)
+
         let reindexCommand = vscode.commands.registerCommand( 'tsimporter.reindex', ( ) => {
-            this.indexer.index.resetIndex();
+            this.indexer.reset();
+            this.indexer.attachFileWatcher();
             this.indexer.scanAll( true );
+        });
+
+        let dumpSymbolsCommand = vscode.commands.registerCommand( 'tsimporter.dumpIndex', ( ) => {
+            console.log( this.indexer.index );
         });
 
         let importCommand = vscode.commands.registerCommand('tsimporter.importSymbol', ( document: vscode.TextDocument, symbol: Symbol ) => {
@@ -98,9 +106,10 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
 
         this.statusBar = vscode.window.createStatusBarItem( vscode.StatusBarAlignment.Left, 1 );
         this.setStatusBar( "initializing" );
+        this.statusBar.command = 'tsimporter.dumpIndex';
         this.statusBar.show();
 
-        this.context.subscriptions.push( codeActionFixer, completionItem, importCommand, this.statusBar );
+        this.context.subscriptions.push( codeActionFixer, completionItem, codeActionFixerReact, completionItemReact, importCommand, dumpSymbolsCommand, this.statusBar );
 
         vscode.commands.executeCommand('tsimporter.reindex', { showOutput: true });
     }

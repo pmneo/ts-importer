@@ -14,7 +14,7 @@ export class Importer {
     {
         this.spacesBetweenBraces = importer.conf<boolean>('spaceBetweenBraces', true);
         this.doubleQuotes = importer.conf<boolean>( 'doubleQuotes', false );
-        this.removeFileExtensions = importer.conf<string>('removeFileExtensions', '.d.ts,.ts').trim().split(/\s*,\s*/);
+        this.removeFileExtensions = importer.conf<string>('removeFileExtensions', '.d.ts,.ts,.tsx').trim().split(/\s*,\s*/);
     }
 
     public importSymbol( document: vscode.TextDocument, symbol: Symbol): void 

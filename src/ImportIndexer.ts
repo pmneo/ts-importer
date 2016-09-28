@@ -28,9 +28,17 @@ export class ImportIndexer
     private paths: string[];
     private filesToScan: string[];
     private filesToExclude: string[];
+    private fileWatcher: vscode.FileSystemWatcher;
+
     public index: ImportIndex;
 
+
     constructor( protected importer: TypeScriptImporter )
+    {
+        this.reset();
+    }
+
+    public reset(): void 
     {
         this.index = new ImportIndex();
         this.filesToScan = toSA( this.importer.conf<string[]>('filesToScan') );
@@ -66,13 +74,17 @@ export class ImportIndexer
         }
         else
             this.paths = [];
-
-        //this.attachFileWatcher();
     }
 
     public attachFileWatcher(): void
     {
-        let watcher = vscode.workspace.createFileSystemWatcher( toGlob( this.filesToScan ) );
+        if( this.fileWatcher )
+        {
+            this.fileWatcher.dispose();
+            this.fileWatcher = undefined;
+        }
+
+        let watcher = this.fileWatcher = vscode.workspace.createFileSystemWatcher( toGlob( this.filesToScan ) );
 
         var batch: string[] = [];
         var batchTimeout: any = undefined;
@@ -163,20 +175,20 @@ export class ImportIndexer
                 {
                     console.log( "Failed to loadFile", err );
                 }
-
-                if( fi == files.length )
-                {
-                    this.scanEnded = new Date();
-
-                    this.printSummary();
-
-                    if ( showNotifications ) 
-                        this.importer.showNotificationMessage( `cache creation complete - (${Math.abs(<any>this.scanStarted - <any>this.scanEnded)}ms)` );
-
-                    return;
-                }
             }
             
+            if( fi == files.length )
+            {
+                this.scanEnded = new Date();
+
+                this.printSummary();
+
+                if ( showNotifications ) 
+                    this.importer.showNotificationMessage( `cache creation complete - (${Math.abs(<any>this.scanStarted - <any>this.scanEnded)}ms)` );
+
+                return;
+            }
+
             //loop async
             setTimeout( next, 0 );
         };

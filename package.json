@@ -1,8 +1,8 @@
 {
 	"name": "tsimporter",
 	"displayName": "TypeScript Importer",
-	"description": "Automatically searches for TypeScript definitions in workspace *.ts files and allows you to import them as a code completion items.",
-	"version": "1.2.1",
+	"description": "Automatically searches for TypeScript definitions in workspace files and provides all known symbols as completion item to allow code completion.",
+	"version": "1.2.2",
 	"publisher": "pmneo",
 	"engines": {
 		"vscode": "^1.5.3"
@@ -22,7 +22,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onLanguage:typescript"
+		"onLanguage:typescript",
+		"onLanguage:typescriptreact"
 	],
 	"main": "./out/TypeScriptImporter",
 	"contributes": {
@@ -39,8 +40,8 @@
 			"properties": {
 				"tsimporter.filesToScan": {
 					"type": "array",
-					"default": ["**/*.ts"],
-					"description": "Glob for files to watch and scan, e.g ./src/** ./src/app/**/*.ts. Defaults to [**/*.ts]"
+					"default": ["**/*.ts","**/*.tsx"],
+					"description": "Glob for files to watch and scan, e.g ./src/** ./src/app/**/*.ts. Defaults to [**/*.ts,**/*.tsx]"
 				},
 				"tsimporter.filesToExclude": {
 					"type": "array",
@@ -69,8 +70,8 @@
 				},
 				"tsimporter.removeFileExtensions": {
 					"type": "string",
-					"default": ".d.ts,.ts",
-					"description": "File Extensions to remove. default is '.d.ts,.ts'"
+					"default": ".d.ts,.ts,.tsx",
+					"description": "File Extensions to remove. default is '.d.ts,.ts,.tsx'"
 				}
 			}
 		}
