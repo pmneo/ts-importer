@@ -204,7 +204,8 @@ export class ImportIndexer
 
         var fsPath = file.fsPath.replace( /[\/\\]/g, "/" );
 
-        var extIdx = fsPath.indexOf( ".", fsPath.lastIndexOf( "/" ) );
+        var lastSlashIdx = fsPath.lastIndexOf("/");
+        var extIdx = lastSlashIdx > 0 ? lastSlashIdx + fsPath.substr(lastSlashIdx).lastIndexOf(".") : fsPath.lastIndexOf(".");
         if( extIdx > 0 )
             fsPath = fsPath.substr( 0, extIdx );
 
