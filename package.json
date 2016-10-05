@@ -2,7 +2,7 @@
 	"name": "tsimporter",
 	"displayName": "TypeScript Importer",
 	"description": "Automatically searches for TypeScript definitions in workspace files and provides all known symbols as completion item to allow code completion.",
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"publisher": "pmneo",
 	"engines": {
 		"vscode": "^1.5.3"

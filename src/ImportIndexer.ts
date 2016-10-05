@@ -204,9 +204,7 @@ export class ImportIndexer
 
         var fsPath = file.fsPath.replace( /[\/\\]/g, "/" );
 
-        var extIdx = fsPath.indexOf( ".", fsPath.lastIndexOf( "/" ) );
-        if( extIdx > 0 )
-            fsPath = fsPath.substr( 0, extIdx );
+        fsPath = this.importer.removeFileExtension( fsPath );
 
         var path = file.fsPath;
         var module = undefined;

@@ -8,13 +8,15 @@ export class Importer {
 
     private spacesBetweenBraces: boolean;
     private doubleQuotes: boolean;
-    private removeFileExtensions: string[];
 
     constructor( private importer: TypeScriptImporter ) 
     {
-        this.spacesBetweenBraces = importer.conf<boolean>('spaceBetweenBraces', true);
-        this.doubleQuotes = importer.conf<boolean>( 'doubleQuotes', false );
-        this.removeFileExtensions = importer.conf<string>('removeFileExtensions', '.d.ts,.ts,.tsx').trim().split(/\s*,\s*/);
+        this.loadConfig();
+    }
+
+    public loadConfig(): void {
+        this.spacesBetweenBraces = this.importer.conf<boolean>('spaceBetweenBraces', true);
+        this.doubleQuotes = this.importer.conf<boolean>( 'doubleQuotes', false );
     }
 
     public importSymbol( document: vscode.TextDocument, symbol: Symbol): void 
@@ -98,19 +100,6 @@ export class Importer {
         return importStatement;
     }
 
-    public removeFileExtension( fileName: string ): string
-    {
-        for( var i = 0; i<this.removeFileExtensions.length; i++ )
-        {
-            var e = this.removeFileExtensions[i];
-
-            if( fileName.endsWith( e ) )
-                return fileName.substring( 0, fileName.length - e.length );
-        }
-
-        return fileName;
-    }
-
     public resolveModule(document: vscode.TextDocument, symbol: Symbol): string 
     {
         if( symbol.module )
@@ -123,7 +112,7 @@ export class Importer {
 
         var fileIdx = moduleParts.length - 1;
 
-        moduleParts[fileIdx] = this.removeFileExtension( moduleParts[fileIdx] );
+        moduleParts[fileIdx] = this.importer.removeFileExtension( moduleParts[fileIdx] );
 
         return moduleParts.join( "/" );
     }

@@ -65,6 +65,8 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
 
     public importer: Importer;
 
+    private removeFileExtensions: string[];
+
     constructor( private context: vscode.ExtensionContext )
     {
         if( vscode.workspace.rootPath === undefined )
@@ -72,7 +74,12 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         else 
             this.disabled = this.conf<boolean>( "disabled" );
 
+        this.loadConfig();
+    }
+
+    protected loadConfig(): void {
         this.showNotifications = this.conf<boolean>('showNotifications');
+        this.removeFileExtensions = this.conf<string>('removeFileExtensions', '.d.ts,.ts,.tsx').trim().split(/\s*,\s*/);
     }
 
     public start(): void
@@ -91,6 +98,9 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         let completionItemReact = vscode.languages.registerCompletionItemProvider('typescriptreact', this)
 
         let reindexCommand = vscode.commands.registerCommand( 'tsimporter.reindex', ( ) => {
+            
+            this.loadConfig();
+
             this.indexer.reset();
             this.indexer.attachFileWatcher();
             this.indexer.scanAll( true );
@@ -112,6 +122,19 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         this.context.subscriptions.push( codeActionFixer, completionItem, codeActionFixerReact, completionItemReact, importCommand, dumpSymbolsCommand, this.statusBar );
 
         vscode.commands.executeCommand('tsimporter.reindex', { showOutput: true });
+    }
+
+    public removeFileExtension( fileName: string ): string
+    {
+        for( var i = 0; i<this.removeFileExtensions.length; i++ )
+        {
+            var e = this.removeFileExtensions[i];
+
+            if( fileName.endsWith( e ) )
+                return fileName.substring( 0, fileName.length - e.length );
+        }
+
+        return fileName;
     }
 
     public showNotificationMessage( message: string ): void {

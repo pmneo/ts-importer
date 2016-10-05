@@ -45,6 +45,9 @@ The current supported symbols are:
 
 ## Changelog
 
+### 1.2.3
+- BUGFIX: Support of filenames including dots
+
 ### 1.2.2
 - Add support of tsx files
 
