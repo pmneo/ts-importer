@@ -40,10 +40,15 @@ The current supported symbols are:
 
 > tsimporter.removeFileExtensions - File Extensions to remove. default is `'.d.ts,.ts,.tsx'`
 
+> tsimporter.lowImportance - If true, the code completion items will be sorted back to the build in completion items. default is false
+
 ----
 
 
 ## Changelog
+
+### 1.2.4
+- New Param `lowImportance`
 
 ### 1.2.3
 - BUGFIX: Support of filenames including dots

@@ -20,7 +20,7 @@ export function deactivate() {
 
 class SymbolCompletionItem extends vscode.CompletionItem
 {
-    constructor( doc: vscode.TextDocument, private m: Symbol )
+    constructor( doc: vscode.TextDocument, private m: Symbol, lowImportance: boolean )
     {
         super( m.name );
 
@@ -35,7 +35,14 @@ class SymbolCompletionItem extends vscode.CompletionItem
         else
             this.kind = vscode.CompletionItemKind.Variable; 
 
-        this.detail = m.module || m.path;
+        this.documentation = m.module || m.path;
+
+        if( lowImportance )
+        {
+            this.sortText = "zzzzzzzzzz" + m.name;
+            this.label = m.name;
+            this.insertText = m.name;
+        }
 
         this.command = {
             title: "import",
@@ -67,6 +74,8 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
 
     private removeFileExtensions: string[];
 
+    private lowImportance: boolean = false;
+
     constructor( private context: vscode.ExtensionContext )
     {
         if( vscode.workspace.rootPath === undefined )
@@ -80,6 +89,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
     protected loadConfig(): void {
         this.showNotifications = this.conf<boolean>('showNotifications');
         this.removeFileExtensions = this.conf<string>('removeFileExtensions', '.d.ts,.ts,.tsx').trim().split(/\s*,\s*/);
+        this.lowImportance = this.conf<boolean>('lowImportance', false);
     }
 
     public start(): void
@@ -189,16 +199,21 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         }
         else// if( range )
         {
+            let range = document.getWordRangeAtPosition( position );
+
+            let word = "";
+            if( range && range.isSingleLine && !range.isEmpty )
+                word = document.getText( range ).trim();
+
             this.codeCompletionIndexer.index.resetIndex();
             this.codeCompletionIndexer.processFile( document.getText(), document.uri, false );
 
             var definitions: vscode.CompletionItem[] = [];
-
-            this.indexer.index.getSymbols( "", true, MatchMode.ANY ).forEach( m => {
+            this.indexer.index.getSymbols( word, true, MatchMode.ANY ).forEach( m => {
                 
                 if( this.codeCompletionIndexer.index.getSymbols( m.name, false, MatchMode.EXACT ).length == 0 )
                 {
-                    var ci: vscode.CompletionItem = new SymbolCompletionItem( document, m );
+                    var ci: vscode.CompletionItem = new SymbolCompletionItem( document, m, this.lowImportance );
                     definitions.push( ci );
                 }
             } );

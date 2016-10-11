@@ -2,7 +2,7 @@
 	"name": "tsimporter",
 	"displayName": "TypeScript Importer",
 	"description": "Automatically searches for TypeScript definitions in workspace files and provides all known symbols as completion item to allow code completion.",
-	"version": "1.2.3",
+	"version": "1.2.4",
 	"publisher": "pmneo",
 	"engines": {
 		"vscode": "^1.5.3"
@@ -31,6 +31,11 @@
 			{
 				"command": "tsimporter.reindex",
 				"title": "Reindex TypeScript Importer",
+				"category": "TypeScript Importer"
+			},
+			{
+				"command": "tsimporter.dumpIndex",
+				"title": "Dumps Index to Dev Tools",
 				"category": "TypeScript Importer"
 			}
 		],
@@ -72,7 +77,13 @@
 					"type": "string",
 					"default": ".d.ts,.ts,.tsx",
 					"description": "File Extensions to remove. default is '.d.ts,.ts,.tsx'"
+				},
+				"tsimporter.lowImportance": {
+					"type": "boolean",
+					"default": false,
+					"description": "If true, the code completion items will be sorted back to the build in completion items"
 				}
+				
 			}
 		}
 	},
