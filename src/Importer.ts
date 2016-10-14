@@ -96,7 +96,7 @@ export class Importer {
         let q = this.doubleQuotes ? '"' : "'";
         let NL = endline ? '\n' : '';
 
-        let importStatement = 'import ' + definition + ' from ' + q + module + q + ";" + NL;
+        let importStatement = 'import ' + definition + ' from ' + q + module + q + ( this.importer.emitSemicolon ? ";" : "" )+ NL;
         return importStatement;
     }
 

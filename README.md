@@ -42,10 +42,15 @@ The current supported symbols are:
 
 > tsimporter.lowImportance - If true, the code completion items will be sorted back to the build in completion items. default is false
 
+> tsimporter.emitSemicolon - If false, no semicolon will be written. default is true
+
 ----
 
 
 ## Changelog
+
+### 1.2.5
+- New Param `emitSemicolon`
 
 ### 1.2.4
 - New Param `lowImportance`

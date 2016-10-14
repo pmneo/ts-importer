@@ -74,7 +74,8 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
 
     private removeFileExtensions: string[];
 
-    private lowImportance: boolean = false;
+    public lowImportance: boolean = false;
+    public emitSemicolon: boolean = true;
 
     constructor( private context: vscode.ExtensionContext )
     {
@@ -90,6 +91,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         this.showNotifications = this.conf<boolean>('showNotifications');
         this.removeFileExtensions = this.conf<string>('removeFileExtensions', '.d.ts,.ts,.tsx').trim().split(/\s*,\s*/);
         this.lowImportance = this.conf<boolean>('lowImportance', false);
+        this.emitSemicolon = this.conf<boolean>('emitSemicolon', true);
     }
 
     public start(): void

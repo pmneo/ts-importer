@@ -2,7 +2,7 @@
 	"name": "tsimporter",
 	"displayName": "TypeScript Importer",
 	"description": "Automatically searches for TypeScript definitions in workspace files and provides all known symbols as completion item to allow code completion.",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"publisher": "pmneo",
 	"engines": {
 		"vscode": "^1.5.3"
@@ -82,8 +82,12 @@
 					"type": "boolean",
 					"default": false,
 					"description": "If true, the code completion items will be sorted back to the build in completion items"
+				},
+				"tsimporter.emitSemicolon": {
+					"type": "boolean",
+					"default": true,
+					"description": "If false, no semicolon will be written"
 				}
-				
 			}
 		}
 	},
