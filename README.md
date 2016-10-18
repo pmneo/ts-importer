@@ -49,6 +49,9 @@ The current supported symbols are:
 
 ## Changelog
 
+### 1.2.6
+- BUGFIX with parent folder resolution was `./../module` instead of `../module`
+
 ### 1.2.5
 - New Param `emitSemicolon`
 

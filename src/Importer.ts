@@ -107,7 +107,7 @@ export class Importer {
 
         var moduleParts = path.relative( path.dirname( document.fileName ), symbol.path ).split( /[\\/]/ );
         
-        if( moduleParts[0] !== '.' )
+        if( moduleParts[0] !== '.' && moduleParts[0] !== '..' )
             moduleParts.splice( 0, 0, '.' );
 
         var fileIdx = moduleParts.length - 1;
