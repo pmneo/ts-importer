@@ -48,7 +48,7 @@ export class ImportIndexer
 
         try
         {
-            tsconfig = JSON.parse( fs.readFileSync( vscode.workspace.rootPath + "/tsconfig.json" ).toString() )
+            tsconfig = JSON.parse( fs.readFileSync( vscode.workspace.rootPath + "/" + this.importer.conf( 'tsconfigName', 'tsconfig.json' ) ).toString() )
         }
         catch( e )
         {

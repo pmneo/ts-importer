@@ -119,7 +119,18 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         });
 
         let dumpSymbolsCommand = vscode.commands.registerCommand( 'tsimporter.dumpIndex', ( ) => {
-            console.log( this.indexer.index );
+            let change = vscode.window.onDidChangeActiveTextEditor( e => {
+                change.dispose();
+
+                let edit = new vscode.WorkspaceEdit();
+                edit.insert( 
+                    e.document.uri, 
+                    new vscode.Position( 0, 0 ), 
+                    JSON.stringify( this.indexer.index, null, "\t" ) 
+                );
+                vscode.workspace.applyEdit( edit );
+            } );
+            vscode.commands.executeCommand( "workbench.action.files.newUntitledFile" );
         });
 
         let importCommand = vscode.commands.registerCommand('tsimporter.importSymbol', ( document: vscode.TextDocument, symbol: Symbol ) => {
@@ -201,6 +212,8 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         }
         else// if( range )
         {
+            let s = new Date().getTime();
+
             let range = document.getWordRangeAtPosition( position );
 
             let word = "";
@@ -219,6 +232,8 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
                     definitions.push( ci );
                 }
             } );
+
+            //console.log( "provided ", definitions.length, "within", (new Date().getTime() - s), "ms" );
 
             return definitions;
         }

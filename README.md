@@ -44,10 +44,16 @@ The current supported symbols are:
 
 > tsimporter.emitSemicolon - If false, no semicolon will be written. default is true
 
+> tsimporter.tsconfigName - An alternative tsconfig.json filename. default is 'tsconfig.json'
+
 ----
 
 
 ## Changelog
+
+### 1.2.7
+- New Param `tsimporter.tsconfigName`
+- Dump index command creates an empty JSON document with index content
 
 ### 1.2.6
 - BUGFIX with parent folder resolution was `./../module` instead of `../module`
