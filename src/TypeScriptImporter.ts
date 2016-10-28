@@ -249,7 +249,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
                     }break;
                     case MODE.MultiLineString: {
                         if( next == '`' )
-                            mode = MODE.MultiLineString;
+                            mode = MODE.Code;
                     }break;
                 }
 

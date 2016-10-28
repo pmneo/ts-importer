@@ -51,6 +51,9 @@ The current supported symbols are:
 
 ## Changelog
 
+### 1.2.9
+- BUGFIX with multiline string parsing
+
 ### 1.2.8
 - BUGFIX NPE with import statements like `import "reflect-metadata";`
 - Resolving all known symbols instead for better code completion
