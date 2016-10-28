@@ -51,6 +51,11 @@ The current supported symbols are:
 
 ## Changelog
 
+### 1.2.8
+- BUGFIX NPE with import statements like `import "reflect-metadata";`
+- Resolving all known symbols instead for better code completion
+- No code completion in comments and strings
+
 ### 1.2.7
 - New Param `tsimporter.tsconfigName`
 - Dump index command creates an empty JSON document with index content

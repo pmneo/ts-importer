@@ -234,6 +234,9 @@ export class ImportIndexer
         var imports: string[];
         while( imports = importRegEx.exec( data ) ) 
         {
+            if( !imports[2] )
+                continue;
+
             let importModule = imports[3];
 
             if( importModule.indexOf( './' ) < 0 && importModule.indexOf( '!' ) < 0)

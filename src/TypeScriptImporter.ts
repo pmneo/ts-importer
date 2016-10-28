@@ -190,7 +190,79 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         var line = document.lineAt( position.line );
         var lineText = line.text;
 
-        if( line && line.text.indexOf( "import" ) >= 0 && line.text.indexOf( "from" ) >= 0 )
+        if( lineText ) {
+
+            var docText = document.getText();
+            var len = document.offsetAt( position );
+            let idx = 0;
+
+            enum MODE {
+                Code,
+                MultiLineComment,
+                LineComment,
+                SingleQuoteString,
+                DoubleQuoteString,
+                MultiLineString
+            }
+
+            let mode = MODE.Code;
+
+            while( idx < len ) {
+                let next = docText.substr( idx, 1 );
+                let next2 = docText.substr( idx, 2 );
+
+                switch( mode ) {
+                    case MODE.Code: {
+                        if( next2 == "/*" ) {
+                            mode = MODE.MultiLineComment;
+                            idx++;
+                        }
+                        else if( next2 == "//" ) {
+                            mode = MODE.LineComment;
+                            idx++;
+                        }
+                        else if( next == "'" )
+                            mode = MODE.SingleQuoteString;
+                        else if( next == '"' )
+                            mode = MODE.DoubleQuoteString;
+                        else if( next == '`' )
+                            mode = MODE.MultiLineString;
+                    } break;
+                    case MODE.MultiLineComment: {
+                        if( next2 == "*/" ) {
+                            mode = MODE.Code;
+                            idx++;
+                        }
+                    }break;
+                    case MODE.LineComment: {
+                        if( next == "\n" ) {
+                            mode = MODE.Code;
+                        }
+                    }break;
+                    case MODE.SingleQuoteString: {
+                        if( next == "'" || next == "\n" )
+                            mode = MODE.Code;
+                    }break;
+                    case MODE.DoubleQuoteString: {
+                        if( next == '"' || next == "\n" )
+                            mode = MODE.Code;
+                    }break;
+                    case MODE.MultiLineString: {
+                        if( next == '`' )
+                            mode = MODE.MultiLineString;
+                    }break;
+                }
+
+                idx++;
+            }
+
+            //console.log( "parsed mode is", mode );
+
+            if( mode != MODE.Code )
+                return;
+        }
+
+        if( lineText && lineText.indexOf( "import" ) >= 0 && lineText.indexOf( "from" ) >= 0 )
         {
             var delims = ["'", '"'];
 
@@ -214,7 +286,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         {
             let s = new Date().getTime();
 
-            let range = document.getWordRangeAtPosition( position );
+            let range: vscode.Range = null;//document.getWordRangeAtPosition( position );
 
             let word = "";
             if( range && range.isSingleLine && !range.isEmpty )
@@ -233,7 +305,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
                 }
             } );
 
-            //console.log( "provided ", definitions.length, "within", (new Date().getTime() - s), "ms" );
+            //console.log( "provided", definitions.length, "within", (new Date().getTime() - s), "ms" );
 
             return definitions;
         }
