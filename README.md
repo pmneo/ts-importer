@@ -26,6 +26,10 @@ The current supported symbols are:
 
 ## Configuration
 
+This can be configured in `.vscode/settings.json`.
+
+Settings will only be applied on startup or executing the reindex command.
+
 > tsimporter.filesToScan - Glob for which files in your workspace to scan, defaults to `['**/*.ts','**/*.tsx']`
 
 > tsimporter.filesToExclude - Glob for files to exclude from watch and scan, e.g `./out/**`. Defaults to nothing
@@ -50,6 +54,9 @@ The current supported symbols are:
 
 
 ## Changelog
+
+### 1.2.10
+- Support of `export default X;` syntax
 
 ### 1.2.9
 - BUGFIX with multiline string parsing
