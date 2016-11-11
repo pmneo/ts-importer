@@ -219,7 +219,7 @@ export class ImportIndexer
             }
         }
 
-        var typesRegEx = /(export\s+?(default\s+?)?(?:((?:(?:abstract\s+)?class)|(?:type)|(?:interface)|(?:function)|(?:let)|(?:var)|(?:const)|(?:enum))\s+)?)([a-zA-z]\w*)/g;
+        var typesRegEx = /(export\s+?(default\s+?)?(?:((?:(?:abstract\s+)?class)|(?:type)|(?:interface)|(?:function(?:\s*\*)?)|(?:let)|(?:var)|(?:const)|(?:enum))\s+)?)([a-zA-z]\w*)/g;
         var typeMatches: string[];
         while ( ( typeMatches = typesRegEx.exec( data ) ) ) 
         {   
