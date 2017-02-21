@@ -2,7 +2,7 @@
 	"name": "tsimporter",
 	"displayName": "TypeScript Importer",
 	"description": "Automatically searches for TypeScript definitions in workspace files and provides all known symbols as completion item to allow code completion.",
-	"version": "1.2.11",
+	"version": "1.2.14",
 	"publisher": "pmneo",
 	"engines": {
 		"vscode": "^1.5.3"
@@ -37,6 +37,16 @@
 				"command": "tsimporter.dumpIndex",
 				"title": "Dumps index to a new document",
 				"category": "TypeScript Importer"
+			},
+			{
+				"command": "tsimporter.addImport",
+				"title": "Add Import",
+				"category": "TypeScript Importer"
+			},
+			{
+				"command": "tsimporter.openSymbol",
+				"title": "Open Symbol",
+				"category": "TypeScript Importer"
 			}
 		],
 		"configuration": {
@@ -62,6 +72,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Disables the extension"
+				},
+				"tsimporter.noStatusBar": {
+					"type": "boolean",
+					"default": false,
+					"description": "Disables the status bar of this extension"
 				},
 				"tsimporter.doubleQuotes": {
 					"type": "boolean",
@@ -92,7 +107,14 @@
 					"type": "string",
 					"default": "tsconfig.json",
 					"description": "tsconfig name to search for"
+				},
+				"tsimporter.preferRelative": {
+					"type": "boolean",
+					"default": false,
+					"description": "When true shorter relative imports will be be prefered instead of absolute imports"
 				}
+
+				
 			}
 		}
 	},

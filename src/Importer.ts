@@ -8,6 +8,7 @@ export class Importer {
 
     private spacesBetweenBraces: boolean;
     private doubleQuotes: boolean;
+    private preferRelative: boolean;
 
     constructor( private importer: TypeScriptImporter ) 
     {
@@ -17,6 +18,7 @@ export class Importer {
     public loadConfig(): void {
         this.spacesBetweenBraces = this.importer.conf<boolean>('spaceBetweenBraces', true);
         this.doubleQuotes = this.importer.conf<boolean>( 'doubleQuotes', false );
+        this.preferRelative = this.importer.conf<boolean>( 'preferRelative', false );
     }
 
     public importSymbol( document: vscode.TextDocument, symbol: Symbol): void 
@@ -102,9 +104,22 @@ export class Importer {
 
     public resolveModule(document: vscode.TextDocument, symbol: Symbol): string 
     {
-        if( symbol.module )
-            return symbol.module;
+        if( symbol.module ) {
+            if( this.preferRelative ) {
+                let rel = this.resolveRelativeModule( document, symbol );
 
+                if( rel.length <= symbol.module.length )
+                    return rel;
+            }
+
+            return symbol.module;
+        }
+        else
+            return this.resolveRelativeModule( document, symbol );
+    }
+
+    public resolveRelativeModule( document: vscode.TextDocument, symbol: Symbol ): string 
+    {
         var moduleParts = path.relative( path.dirname( document.fileName ), symbol.path ).split( /[\\/]/ );
         
         if( moduleParts[0] !== '.' && moduleParts[0] !== '..' )

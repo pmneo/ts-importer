@@ -51,10 +51,24 @@ Settings will only be applied on startup or executing the reindex command.
 
 > tsimporter.tsconfigName - An alternative tsconfig.json filename. default is 'tsconfig.json'
 
+> tsimporter.noStatusBar - True to hide the status bar
+
+> tsimporter.preferRelative - When true shorter relative imports will be be prefered instead of absolute imports
+
 ----
 
 
 ## Changelog
+
+### 1.2.14
+- Added `noStatusBar` option
+- Added `preferRelative` option
+
+### 1.2.13
+- Added `openSymbol` command to open a symbols document. The command filters the search by the word under the cursor or the current selection. 
+
+### 1.2.12
+- Added `addImport` command to add a import manually. The command filters the search by the word under the cursor or the current selection. 
 
 ### 1.2.11
 - Support of `export function* foo() {...};` generator syntax

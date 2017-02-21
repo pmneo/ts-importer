@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import {ImportIndexer} from './ImportIndexer';
 import { ImportIndex, Symbol, MatchMode } from './ImportIndex';
 import {Importer} from './Importer';
+import * as path from 'path';
 
 export function activate( context: vscode.ExtensionContext ): void 
 {
@@ -20,7 +21,7 @@ export function deactivate() {
 
 class SymbolCompletionItem extends vscode.CompletionItem
 {
-    constructor( doc: vscode.TextDocument, private m: Symbol, lowImportance: boolean )
+    constructor( doc: vscode.TextDocument, public m: Symbol, lowImportance: boolean )
     {
         super( m.name );
 
@@ -35,7 +36,7 @@ class SymbolCompletionItem extends vscode.CompletionItem
         else
             this.kind = vscode.CompletionItemKind.Variable; 
 
-        this.documentation = m.module || m.path;
+        this.description = this.documentation = m.module || m.path;
 
         if( lowImportance )
         {
@@ -44,13 +45,42 @@ class SymbolCompletionItem extends vscode.CompletionItem
             this.insertText = m.name;
         }
 
-        this.command = {
-            title: "import",
-            command: 'tsimporter.importSymbol',
-            arguments: [ doc, m ]
+        if( doc )
+            this.command = {
+                title: "import",
+                command: 'tsimporter.importSymbol',
+                arguments: [ doc, m ]
+            }
+    }
+
+    public description: string;
+}
+
+function getSelectedWord(): string {
+    if( !vscode.window.activeTextEditor )
+        return "";
+
+    let document = vscode.window.activeTextEditor.document;
+
+    if( !document )
+        return "";
+
+    let word = "";
+
+    let selection = vscode.window.activeTextEditor.selection;
+
+    if( selection ) {
+        let w: vscode.Range = selection;
+        
+        if( selection.isEmpty )
+            w = document.getWordRangeAtPosition( selection.active );
+
+        if( w && w.isSingleLine ) {
+            word = document.getText( w );
         }
     }
 
+    return word;
 }
 
 export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode.CodeActionProvider
@@ -61,6 +91,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
     }
 
     public disabled: boolean = false;
+    public noStatusBar: boolean = false;
 
     private showNotifications: boolean;
 
@@ -92,6 +123,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         this.removeFileExtensions = this.conf<string>('removeFileExtensions', '.d.ts,.ts,.tsx').trim().split(/\s*,\s*/);
         this.lowImportance = this.conf<boolean>('lowImportance', false);
         this.emitSemicolon = this.conf<boolean>('emitSemicolon', true);
+        this.noStatusBar = this.conf<boolean>('noStatusBar', false);
     }
 
     public start(): void
@@ -118,6 +150,82 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
             this.indexer.scanAll( true );
         });
 
+        let addImport = vscode.commands.registerCommand( 'tsimporter.addImport', ( ) => {
+            
+            if( !vscode.window.activeTextEditor )
+                return;
+
+            let document = vscode.window.activeTextEditor.document;
+
+            let word = getSelectedWord();
+
+            this.codeCompletionIndexer.index.resetIndex();
+            this.codeCompletionIndexer.processFile( document.getText(), document.uri, false );
+
+            var definitions: SymbolCompletionItem[] = [];
+            this.indexer.index.getSymbols( word, true, MatchMode.ANY ).forEach( m => {
+                
+                if( this.codeCompletionIndexer.index.getSymbols( m.name, false, MatchMode.EXACT ).length == 0 )
+                {
+                    var ci = new SymbolCompletionItem( document, m, this.lowImportance );
+                    definitions.push( ci );
+                }
+            } );
+
+            let importItem = item => {
+                if( item )
+                    vscode.commands.executeCommand( item.command.command, item.command.arguments[0], item.command.arguments[1] );
+            };
+
+            if( definitions.length == 0 ) {
+                vscode.window.showInformationMessage( "no importable symbols found!" )
+            }
+            else if( definitions.length == 1 ) {
+                importItem( definitions[0] );
+            }
+            else {
+                vscode.window.showQuickPick<SymbolCompletionItem>( definitions ).then( importItem );
+            }
+        });
+
+        let openSymbol = vscode.commands.registerCommand( 'tsimporter.openSymbol', ( ) => {
+            
+            let word = getSelectedWord();
+
+            var definitions: SymbolCompletionItem[] = [];
+            this.indexer.index.getSymbols( word, true, MatchMode.ANY ).forEach( m => {
+                if( m.path ) {
+                    var ci = new SymbolCompletionItem( null, m, this.lowImportance );
+                    definitions.push( ci );
+                }
+            } );
+
+            let openItem = item => {
+                if( item ) {
+                    let uri = vscode.Uri.file( item.m.path );
+                    console.log( uri );
+                    vscode.workspace.openTextDocument( uri ).then( 
+                        r => {
+                            vscode.window.showTextDocument( r );
+                        }, 
+                        f => { 
+                            console.error( "fault", f ) 
+                        }
+                    );
+                }
+            };
+
+            if( definitions.length == 0 ) {
+                vscode.window.showInformationMessage( "no importable symbols found!" )
+            }
+            else if( definitions.length == 1 ) {
+                openItem( definitions[0] );
+            }
+            else {
+                vscode.window.showQuickPick<SymbolCompletionItem>( definitions ).then( openItem );
+            }
+        });
+
         let dumpSymbolsCommand = vscode.commands.registerCommand( 'tsimporter.dumpIndex', ( ) => {
             let change = vscode.window.onDidChangeActiveTextEditor( e => {
                 change.dispose();
@@ -140,7 +248,11 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         this.statusBar = vscode.window.createStatusBarItem( vscode.StatusBarAlignment.Left, 1 );
         this.setStatusBar( "initializing" );
         this.statusBar.command = 'tsimporter.dumpIndex';
-        this.statusBar.show();
+
+        if( this.noStatusBar )
+            this.statusBar.hide();
+        else
+            this.statusBar.show();
 
         this.context.subscriptions.push( codeActionFixer, completionItem, codeActionFixerReact, completionItemReact, importCommand, dumpSymbolsCommand, this.statusBar );
 
