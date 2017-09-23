@@ -141,6 +141,9 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         let codeActionFixerReact = vscode.languages.registerCodeActionsProvider('typescriptreact', this)
         let completionItemReact = vscode.languages.registerCompletionItemProvider('typescriptreact', this)
 
+        let codeActionFixerVue = vscode.languages.registerCodeActionsProvider('vue', this)
+        let completionItemVue = vscode.languages.registerCompletionItemProvider('vue', this)
+
         let reindexCommand = vscode.commands.registerCommand( 'tsimporter.reindex', ( ) => {
             
             this.loadConfig();
@@ -254,7 +257,7 @@ export class TypeScriptImporter implements vscode.CompletionItemProvider, vscode
         else
             this.statusBar.show();
 
-        this.context.subscriptions.push( codeActionFixer, completionItem, codeActionFixerReact, completionItemReact, importCommand, dumpSymbolsCommand, this.statusBar );
+        this.context.subscriptions.push( codeActionFixer, completionItem, codeActionFixerReact, completionItemReact, codeActionFixerVue, completionItemVue, importCommand, dumpSymbolsCommand, this.statusBar );
 
         vscode.commands.executeCommand('tsimporter.reindex', { showOutput: true });
     }
