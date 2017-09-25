@@ -23,7 +23,8 @@
 	],
 	"activationEvents": [
 		"onLanguage:typescript",
-		"onLanguage:typescriptreact"
+		"onLanguage:typescriptreact",
+		"onLanguage:vue"
 	],
 	"main": "./out/TypeScriptImporter",
 	"contributes": {
@@ -55,7 +56,7 @@
 			"properties": {
 				"tsimporter.filesToScan": {
 					"type": "array",
-					"default": ["**/*.ts","**/*.tsx"],
+					"default": ["**/*.ts","**/*.tsx","**/*.vue"],
 					"description": "Glob for files to watch and scan, e.g ./src/** ./src/app/**/*.ts. Defaults to [**/*.ts,**/*.tsx]"
 				},
 				"tsimporter.filesToExclude": {
