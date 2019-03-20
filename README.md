@@ -60,6 +60,9 @@ Settings will only be applied on startup or executing the reindex command.
 
 ## Changelog
 
+### 2.0.0
+- Upgraded to VSCode 1.18.0 and TypeScript 3.3.400
+
 ### 1.2.14
 - Added `noStatusBar` option
 - Added `preferRelative` option
