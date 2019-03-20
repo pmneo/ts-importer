@@ -21,7 +21,7 @@ The current supported symbols are:
 
 ----
 
-<img src="http://g.recordit.co/QHByAo9Km7.gif">
+<img src="https://raw.githubusercontent.com/pmneo/ts-importer/master/demo.gif">
 
 ----
 
